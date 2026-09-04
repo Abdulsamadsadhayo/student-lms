@@ -35,28 +35,36 @@ export default function Dashboard() {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    fetchStudents();
-  }, []);
+    let cancelled = false;
 
-  async function fetchStudents() {
-    try {
-      setLoading(true);
+    async function loadStudents() {
+      try {
+        const response = await fetch("/api/students", {
+          cache: "no-store",
+        });
 
-      const response = await fetch("/api/students", {
-        cache: "no-store",
-      });
+        const data = await response.json();
 
-      const data = await response.json();
-
-      if (data.success) {
-        setStudents(data.students);
+        if (!cancelled && data.success) {
+          setStudents(data.students);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error(error);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
     }
-  }
+
+    loadStudents();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   function openAddModal() {
     setSelectedStudent(null);
@@ -276,6 +284,7 @@ export default function Dashboard() {
       </main>
 
       <StudentModal
+        key={`${modalOpen}-${selectedStudent?._id || "new"}`}
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         student={selectedStudent}

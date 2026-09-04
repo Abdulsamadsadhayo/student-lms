@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { X, UserPlus, Save } from "lucide-react";
 
 import "./StudentModal.css";
@@ -11,37 +11,17 @@ export default function StudentModal({
   student,
   onSuccess,
 }) {
-  const [form, setForm] = useState({
-    studentId: "",
-    name: "",
-    fatherName: "",
-    cnic: "",
-  });
+  const [form, setForm] = useState(() => ({
+    studentId: student?.studentId || "",
+    name: student?.name || "",
+    fatherName: student?.fatherName || "",
+    cnic: student?.cnic || "",
+  }));
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const isEdit = Boolean(student);
-
-  useEffect(() => {
-    if (student) {
-      setForm({
-        studentId: student.studentId || "",
-        name: student.name || "",
-        fatherName: student.fatherName || "",
-        cnic: student.cnic || "",
-      });
-    } else {
-      setForm({
-        studentId: "",
-        name: "",
-        fatherName: "",
-        cnic: "",
-      });
-    }
-
-    setError("");
-  }, [student, isOpen]);
 
   if (!isOpen) {
     return null;
